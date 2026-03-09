@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lawrence Anthony – Wildlife Hero</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --jungle: #1a3a2a;
+    --forest: #2d5a3d;
+    --leaf: #4a8c5c;
+    --lime: #7ec47a;
+    --gold: #e8b84b;
+    --sand: #f5e9c8;
+    --cream: #fdf8ef;
+    --earth: #8b6b3d;
+    --correct: #3aaf6e;
+    --wrong: #e05252;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--jungle); min-height: 100vh; }
+
+  header {
+    background: var(--jungle);
+    background-image: radial-gradient(ellipse at 20% 50%, #2d5a3d88 0%, transparent 60%),
+                      radial-gradient(ellipse at 80% 20%, #4a8c5c44 0%, transparent 50%);
+    padding: 2.5rem 2rem 2rem; text-align: center; position: relative; overflow: hidden;
+  }
+  header::before { content: "🐘"; position: absolute; right: 5%; top: 50%; transform: translateY(-50%); font-size: 7rem; opacity: 0.12; }
+  header::after  { content: "🌿"; position: absolute; left: 4%;  top: 40%; transform: translateY(-50%); font-size: 5rem; opacity: 0.13; }
+  header h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem,4vw,3rem); color: var(--sand); letter-spacing: .02em; }
+  header p  { color: var(--lime); font-size: 1rem; margin-top: .5rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+
+  .audio-bar {
+    background: var(--forest); padding: 1rem 2rem;
+    display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;
+  }
+  .audio-bar label { color: var(--lime); font-weight: 600; font-size: .9rem; letter-spacing: .05em; }
+  .audio-bar audio  { height: 36px; border-radius: 8px; max-width: 420px; width: 100%; }
+
+  .tabs { display: flex; gap: .5rem; padding: 1.5rem 1.5rem 0; max-width: 900px; margin: 0 auto; flex-wrap: wrap; }
+  .tab-btn {
+    padding: .65rem 1.3rem; border: 2px solid var(--leaf); background: transparent;
+    color: var(--forest); border-radius: 40px; font-family: 'DM Sans',sans-serif;
+    font-weight: 600; font-size: .85rem; cursor: pointer; transition: all .2s; letter-spacing: .04em;
+  }
+  .tab-btn:hover  { background: var(--leaf); color: #fff; }
+  .tab-btn.active { background: var(--jungle); border-color: var(--jungle); color: var(--gold); }
+
+  main { max-width: 900px; margin: 0 auto; padding: 1.5rem; }
+  .section { display: none; animation: fadeIn .35s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+  .section-title { font-family: 'Playfair Display',serif; font-size: 1.7rem; color: var(--jungle); margin-bottom: .3rem; }
+  .section-subtitle { color: var(--earth); font-size: .9rem; margin-bottom: 1.5rem; font-weight: 500; }
+
+  .card {
+    background: #fff; border-radius: 16px; padding: 1.4rem 1.6rem; margin-bottom: 1.2rem;
+    border: 1.5px solid #e8e0d0; box-shadow: 0 2px 12px rgba(26,58,42,.06); transition: box-shadow .2s;
+  }
+  .card:hover { box-shadow: 0 4px 20px rgba(26,58,42,.11); }
+
+  .vocab-box {
+    background: linear-gradient(135deg,var(--sand) 0%,#fff9ee 100%);
+    border: 2px solid var(--gold); border-radius: 16px; padding: 1.2rem 1.6rem;
+    margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: .5rem 1.2rem;
+  }
+  .vocab-word { font-weight: 600; color: var(--forest); background: #fff; border: 1.5px solid var(--leaf); border-radius: 8px; padding: .25rem .7rem; font-size: .88rem; }
+
+  .q-label { font-weight: 700; color: var(--jungle); font-size: .92rem; margin-bottom: .6rem; display: flex; align-items: baseline; gap: .5rem; }
+  .q-num  { background: var(--jungle); color: var(--gold); width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: .78rem; flex-shrink: 0; }
+
+  textarea, input[type="text"] {
+    width: 100%; border: 1.5px solid #ddd; border-radius: 10px; padding: .65rem .9rem;
+    font-family: 'DM Sans',sans-serif; font-size: .95rem; color: var(--jungle);
+    background: var(--cream); resize: vertical; transition: border-color .2s; margin-top: .4rem;
+  }
+  textarea:focus, input[type="text"]:focus { outline: none; border-color: var(--leaf); background: #fff; }
+
+  .fill-inline {
+    display: inline-block; border: none; border-bottom: 2px solid var(--leaf);
+    min-width: 160px; padding: .1rem .4rem; font-family: 'DM Sans',sans-serif; font-size: .93rem;
+    background: transparent; color: var(--jungle); border-radius: 0; width: auto; margin-top: 0;
+  }
+  .fill-inline:focus { outline: none; border-color: var(--gold); }
+
+  .options { display: flex; flex-direction: column; gap: .5rem; margin-top: .4rem; }
+  .option-label {
+    display: flex; align-items: center; gap: .7rem; padding: .6rem .9rem;
+    border: 1.5px solid #e0ddd4; border-radius: 10px; cursor: pointer;
+    transition: all .18s; font-size: .93rem; background: var(--cream);
+  }
+  .option-label:hover { border-color: var(--leaf); background: #f0faf2; }
+  .option-label input[type="radio"] { accent-color: var(--forest); width:16px; height:16px; }
+  .option-label.selected     { border-color: var(--forest); background: #e8f5ec; font-weight: 500; }
+  .option-label.correct-ans  { border-color: var(--correct); background: #e6f9ef; color: #1a5c34; font-weight: 600; }
+  .option-label.wrong-ans    { border-color: var(--wrong);   background: #fdf0f0; color: #8b2020; }
+
+  .word-choice-row { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; line-height: 2; font-size: .95rem; }
+  .choice-btn {
+    padding: .2rem .65rem; border: 1.5px solid var(--leaf); background: #f0faf2;
+    color: var(--forest); border-radius: 20px; cursor: pointer; font-family: 'DM Sans',sans-serif;
+    font-size: .9rem; font-weight: 500; transition: all .15s;
+  }
+  .choice-btn:hover         { background: var(--leaf); color: #fff; }
+  .choice-btn.chosen        { background: var(--forest); color: #fff; border-color: var(--forest); }
+  .choice-btn.correct-chosen{ background: var(--correct); border-color: var(--correct); color: #fff; }
+  .choice-btn.wrong-chosen  { background: var(--wrong);   border-color: var(--wrong);   color: #fff; }
+  .choice-btn.reveal-correct{ background: var(--correct); border-color: var(--correct); color: #fff; }
+
+  .score-bar { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; }
+  .check-btn {
+    padding: .75rem 2rem; background: var(--jungle); color: var(--gold); border: none;
+    border-radius: 40px; font-family: 'DM Sans',sans-serif; font-size: 1rem; font-weight: 700;
+    cursor: pointer; letter-spacing: .04em; transition: transform .15s, background .2s;
+    box-shadow: 0 3px 14px rgba(26,58,42,.25);
+  }
+  .check-btn:hover { background: var(--forest); transform: translateY(-1px); }
+  .reset-btn {
+    padding: .65rem 1.4rem; background: transparent; color: var(--earth); border: 1.5px solid var(--earth);
+    border-radius: 40px; font-family: 'DM Sans',sans-serif; font-size: .9rem; font-weight: 600;
+    cursor: pointer; transition: all .15s;
+  }
+  .reset-btn:hover { background: var(--earth); color: #fff; }
+  .score-display {
+    font-family: 'Playfair Display',serif; font-size: 1.15rem; color: var(--forest);
+    background: var(--sand); border: 2px solid var(--gold); border-radius: 12px;
+    padding: .5rem 1.2rem; display: none;
+  }
+  .score-display.show { display: inline-block; animation: pop .3s ease; }
+  @keyframes pop { 0%{transform:scale(.85)} 70%{transform:scale(1.05)} 100%{transform:scale(1)} }
+
+  .person-images { display: flex; gap: 1.2rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .person-img-card { flex: 1; min-width: 160px; border-radius: 14px; overflow: hidden; border: 3px solid var(--leaf); box-shadow: 0 4px 16px rgba(26,58,42,.15); }
+  .person-img-card img { width: 100%; height: 200px; object-fit: cover; display: block; }
+  .person-img-card .caption { background: var(--jungle); color: var(--sand); font-size: .8rem; font-weight: 600; text-align: center; padding: .4rem; letter-spacing: .04em; }
+
+  .sentence-row { margin-bottom: 1rem; font-size: .95rem; line-height: 1.8; }
+  .sentence-row .q-prefix { font-weight: 600; margin-right: .3rem; }
+
+  @media(max-width:600px){
+    .person-images { flex-direction: column; }
+    .tab-btn { font-size: .78rem; padding: .55rem .9rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🐘 Lawrence Anthony – Wildlife Hero</h1>
+  <p>Listening &amp; Vocabulary Worksheet</p>
+</header>
+
+<div class="audio-bar">
+  <label>🎧 Listen to the passage:</label>
+  <audio controls preload="none">
+    <source src="https://dqt7m27rg71w0.cloudfront.net/wp-content/uploads/2021/09/12145907/JHS_MP3_NewDirPLus_U4_p94_ex_b_c.mp3" type="audio/mpeg">
+    Your browser does not support audio.
+  </audio>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showSection('vocab',this)">📗 Part A – Vocabulary</button>
+  <button class="tab-btn" onclick="showSection('listening',this)">🎧 Part B – Listening</button>
+  <button class="tab-btn" onclick="showSection('review',this)">✏️ Part C – Review &amp; Writing</button>
+</div>
+
+<main>
+
+<!-- ═══════════ PART A: VOCABULARY ═══════════ -->
+<div id="vocab" class="section active">
+  <div class="section-title">📗 Part A – Vocabulary</div>
+  <div class="section-subtitle">Learn and practise the new words from this unit.</div>
+
+  <div class="vocab-box">
+    <span class="vocab-word">aim (n)</span><span class="vocab-word">allow</span>
+    <span class="vocab-word">demand (v)</span><span class="vocab-word">despite</span>
+    <span class="vocab-word">head (n)</span><span class="vocab-word">nearby</span>
+    <span class="vocab-word">option</span><span class="vocab-word">permanent</span>
+    <span class="vocab-word">plan to</span><span class="vocab-word">property</span>
+    <span class="vocab-word">temporary</span>
+  </div>
+
+  <!-- A2 -->
+  <div class="card">
+    <div class="q-label" style="font-size:1rem;margin-bottom:1rem;">
+      Exercise 2 — Read the sentences and pay attention to the words in bold. Which of the new words can replace the words in bold? Make any necessary changes.
+    </div>
+    <div class="sentence-row"><span class="q-prefix">1.</span> Who is the <strong>leader</strong> of the group?<br>
+      <input type="text" class="fill-inline" id="a2q1" placeholder="your answer…"> <span id="fb-a2q1"></span></div>
+    <div class="sentence-row"><span class="q-prefix">2.</span> Our <strong>goal</strong> is to help animals in danger.<br>
+      <input type="text" class="fill-inline" id="a2q2" placeholder="your answer…"> <span id="fb-a2q2"></span></div>
+    <div class="sentence-row"><span class="q-prefix">3.</span> I'm afraid we have no other <strong>choice</strong>.<br>
+      <input type="text" class="fill-inline" id="a2q3" placeholder="your answer…"> <span id="fb-a2q3"></span></div>
+    <div class="sentence-row"><span class="q-prefix">4.</span> We must <strong>ask very strongly</strong> that you deal with this problem.<br>
+      <input type="text" class="fill-inline" id="a2q4" placeholder="your answer…"> <span id="fb-a2q4"></span></div>
+    <div class="sentence-row"><span class="q-prefix">5.</span> Are there any shops <strong>in the area</strong>?<br>
+      <input type="text" class="fill-inline" id="a2q5" placeholder="your answer…"> <span id="fb-a2q5"></span></div>
+    <div class="sentence-row"><span class="q-prefix">6.</span> He owns some <strong>land</strong> near the river.<br>
+      <input type="text" class="fill-inline" id="a2q6" placeholder="your answer…"> <span id="fb-a2q6"></span></div>
+    <div class="sentence-row"><span class="q-prefix">7.</span> Is his new job <strong>going to last for a long time</strong>?<br>
+      <input type="text" class="fill-inline" id="a2q7" placeholder="your answer…"> <span id="fb-a2q7"></span></div>
+  </div>
+
+  <!-- A3 -->
+  <div class="card">
+    <div class="q-label" style="font-size:1rem;margin-bottom:1rem;">
+      Exercise 3 — Complete the sentences to show that you know the meanings of the new words in bold.
+    </div>
+    <div class="sentence-row"><span class="q-prefix">1.</span> <strong>Despite</strong> the bad weather, she …
+      <textarea id="a3q1" rows="2" placeholder="complete the sentence…"></textarea></div>
+    <div class="sentence-row"><span class="q-prefix">2.</span> Parents shouldn't <strong>allow</strong> young children to …
+      <textarea id="a3q2" rows="2" placeholder="complete the sentence…"></textarea></div>
+    <div class="sentence-row"><span class="q-prefix">3.</span> I want to get a <strong>temporary</strong> job because …
+      <textarea id="a3q3" rows="2" placeholder="complete the sentence…"></textarea></div>
+    <div class="sentence-row"><span class="q-prefix">4.</span> As soon as I finish my homework, I <strong>plan to</strong> …
+      <textarea id="a3q4" rows="2" placeholder="complete the sentence…"></textarea></div>
+  </div>
+
+  <div class="score-bar">
+    <button class="check-btn" onclick="checkVocab()">✅ Check Exercise 2</button>
+    <button class="reset-btn" onclick="resetVocab()">↺ Reset</button>
+    <div class="score-display" id="vocab-score"></div>
+  </div>
+</div>
+
+<!-- ═══════════ PART B: LISTENING ═══════════ -->
+<div id="listening" class="section">
+  <div class="section-title">🎧 Part B – Listening Comprehension</div>
+  <div class="section-subtitle">Listen to the talk about Lawrence Anthony and answer the questions.</div>
+
+  <div class="person-images">
+    <div class="person-img-card">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Lawrence_Anthony.jpg/400px-Lawrence_Anthony.jpg"
+           alt="Lawrence Anthony"
+           onerror="this.style.display='none';this.parentNode.querySelector('.caption').textContent='Lawrence Anthony'">
+      <div class="caption">Lawrence Anthony</div>
+    </div>
+    <div class="person-img-card">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/African_Bush_Elephants.jpg/640px-African_Bush_Elephants.jpg"
+           alt="African Elephants"
+           onerror="this.src='https://images.unsplash.com/photo-1564760055775-d63b17a55c44?w=640&q=80'">
+      <div class="caption">African Bush Elephants</div>
+    </div>
+  </div>
+
+  <div class="card" style="background:linear-gradient(135deg,#e8f5ec,#fff);border-color:#b6dfbf;">
+    <div class="q-label">🎯 Before you listen</div>
+    <p style="font-size:.93rem;color:#444;margin-top:.5rem;">Listen to a talk about an amazing person, Lawrence Anthony. Why has the speaker decided to speak about him? Write your prediction below.</p>
+    <textarea id="pre-listen" rows="2" placeholder="I think the speaker talks about him because…"></textarea>
+  </div>
+
+  <div class="card">
+    <div class="q-label"><span class="q-num">1</span> Why did Lawrence stop working in his father's business?</div>
+    <textarea id="lq1" rows="3" placeholder="Write your answer…"></textarea>
+  </div>
+
+  <div class="card">
+    <div class="q-label"><span class="q-num">2</span> Complete the sentence.</div>
+    <p style="font-size:.95rem;margin-bottom:.5rem;">Lawrence brought the animals to his park so that people wouldn't …</p>
+    <textarea id="lq2" rows="2" placeholder="Write your answer…"></textarea>
+  </div>
+
+  <div class="card">
+    <div class="q-label"><span class="q-num">3</span> Which of the statements below is true?</div>
+    <div class="options">
+      <label class="option-label" id="lq3-a" onclick="selectOpt('a',this)">
+        <input type="radio" name="lq3" value="a"> a. Lawrence wasn't sure about taking the elephants onto his land.
+      </label>
+      <label class="option-label" id="lq3-b" onclick="selectOpt('b',this)">
+        <input type="radio" name="lq3" value="b"> b. It took Lawrence a long time to create a connection with the elephants.
+      </label>
+      <label class="option-label" id="lq3-c" onclick="selectOpt('c',this)">
+        <input type="radio" name="lq3" value="c"> c. The elephants gave Lawrence respect but still caused problems.
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="q-label"><span class="q-num">4</span> Complete the sentence.</div>
+    <p style="font-size:.95rem;margin-bottom:.5rem;">When Lawrence's grandchild was born, he …</p>
+    <textarea id="lq4" rows="2" placeholder="Write your answer…"></textarea>
+  </div>
+
+  <div class="card">
+    <div class="q-label"><span class="q-num">5</span> Why did the elephants come to Lawrence's house?</div>
+    <textarea id="lq5" rows="3" placeholder="Write your answer…"></textarea>
+  </div>
+
+  <div class="score-bar">
+    <button class="check-btn" onclick="checkListen()">✅ Check Question 3</button>
+    <button class="reset-btn" onclick="resetListen()">↺ Reset Q3</button>
+    <div class="score-display" id="listen-score"></div>
+  </div>
+  <p style="font-size:.8rem;color:#999;margin-top:.8rem;">* Open questions (1,2,4,5) are saved automatically and reviewed by your teacher.</p>
+</div>
+
+<!-- ═══════════ PART C: REVIEW ═══════════ -->
+<div id="review" class="section">
+  <div class="section-title">✏️ Part C – Review &amp; Writing</div>
+  <div class="section-subtitle">How many new words do you remember? Choose the correct answer. Check your answers on page 216.</div>
+
+  <div class="card">
+    <div class="q-label" style="font-size:1rem;margin-bottom:1.2rem;">Choose the correct word in each sentence.</div>
+    <div id="mc-container"></div>
+  </div>
+
+  <div class="card" style="border-color:var(--gold);background:linear-gradient(135deg,#fff9ee,#fff);">
+    <div class="q-label" style="font-size:1rem;margin-bottom:.8rem;">✍️ Writing Task</div>
+    <p style="font-size:.93rem;color:#444;margin-bottom:1rem;">Imagine that some wild or exotic animals have entered your school. With a partner, prepare a short news report. Use the new words in the list and present your news report to the class.</p>
+    <p style="font-size:.88rem;color:#666;margin-bottom:.8rem;">Include:</p>
+    <ul style="font-size:.88rem;color:#555;padding-left:1.3rem;margin-bottom:1rem;line-height:2;">
+      <li>A description of the situation and the students' reactions</li>
+      <li>Advice about what the authorities should do</li>
+    </ul>
+    <textarea id="writing-task" rows="8" placeholder="Write your news report here…"></textarea>
+  </div>
+
+  <div class="score-bar">
+    <button class="check-btn" onclick="checkReview()">✅ Check Multiple Choice</button>
+    <button class="reset-btn" onclick="resetReview()">↺ Reset</button>
+    <div class="score-display" id="review-score"></div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ── DATA ──
+const MC = [
+  { pre:"Sometimes we have to", opts:["cause","adapt","demand"], correct:"demand", post:"to a new situation." },
+  { pre:"I don't want to do that. You can't", opts:["attack","argue","force"], correct:"force", post:"me to do it." },
+  { pre:"Dan was", opts:["confident","adequate","satisfied"], correct:"satisfied", post:"with his math grade." },
+  { pre:"My parents don't", opts:["allow","occur","relax"], correct:"allow", post:"me to swim in the lake." },
+  { pre:"This is private", opts:["region","property","option"], correct:"property", post:"You can't enter." },
+  { pre:"The scientists first tried to find out which elephant was the", opts:["head","trend","aim"], correct:"head", post:"of the group." },
+  { pre:"That restaurant is busy, so it's very", opts:["nearby","noisy","temporary"], correct:"nearby", post:"." },
+  { pre:"There is a", opts:["rise","space","disease"], correct:"rise", post:"in the number of animals in danger every year." },
+];
+
+const A2_KEY = { a2q1:"head", a2q2:"aim", a2q3:"option", a2q4:"demand", a2q5:"nearby", a2q6:"property", a2q7:"permanent" };
+
+// ── STATE ──
+let mcChosen = {};    // {index: word}
+let mcDone   = false;
+let lq3Val   = null;
+let lq3Done  = false;
+
+// ── TABS ──
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── BUILD MC ──
+function buildMC() {
+  const c = document.getElementById('mc-container');
+  c.innerHTML = '';
+  MC.forEach((q,i) => {
+    const row = document.createElement('div');
+    row.style.cssText = 'margin-bottom:1rem;font-size:.93rem;line-height:2;';
+    row.innerHTML = `<strong>${i+1}.</strong> ${q.pre} <span id="mc-btns-${i}">${renderBtns(i)}</span> ${q.post}`;
+    c.appendChild(row);
+  });
+}
+
+function renderBtns(i) {
+  return MC[i].opts.map(w => {
+    const chosen = mcChosen[i] === w;
+    let cls = 'choice-btn' + (chosen ? ' chosen' : '');
+    return `<button class="${cls}" onclick="pickMC(${i},'${w}',this)">${w}</button>`;
+  }).join(' / ');
+}
+
+function pickMC(i, w, btn) {
+  if (mcDone) return;
+  mcChosen[i] = w;
+  saveAll();
+  document.getElementById(`mc-btns-${i}`).innerHTML = renderBtns(i);
+}
+
+// ── RADIO ──
+function selectOpt(val, labelEl) {
+  if (lq3Done) return;
+  lq3Val = val;
+  ['a','b','c'].forEach(v => document.getElementById('lq3-'+v).classList.remove('selected'));
+  labelEl.classList.add('selected');
+  saveAll();
+}
+
+// ── CHECK VOCAB ──
+function checkVocab() {
+  let score = 0;
+  Object.entries(A2_KEY).forEach(([id, ans]) => {
+    const val = (document.getElementById(id).value||'').trim().toLowerCase();
+    const ok  = val === ans.toLowerCase() || val.includes(ans.toLowerCase());
+    document.getElementById('fb-'+id).innerHTML = ok ? ' ✅' : ` ❌ <em>(${ans})</em>`;
+    if (ok) score++;
+  });
+  const d = document.getElementById('vocab-score');
+  d.textContent = `Score: ${score} / ${Object.keys(A2_KEY).length}`;
+  d.classList.add('show');
+}
+
+function resetVocab() {
+  Object.keys(A2_KEY).forEach(id => { document.getElementById(id).value=''; document.getElementById('fb-'+id).innerHTML=''; });
+  ['a3q1','a3q2','a3q3','a3q4'].forEach(id=>{ document.getElementById(id).value=''; });
+  document.getElementById('vocab-score').classList.remove('show');
+  saveAll();
+}
+
+// ── CHECK LISTEN ──
+const LQ3_CORRECT = 'a';
+function checkListen() {
+  if (!lq3Val) { alert('Please select an answer for question 3.'); return; }
+  lq3Done = true;
+  ['a','b','c'].forEach(v => {
+    const el = document.getElementById('lq3-'+v);
+    el.classList.remove('selected');
+    if (v === LQ3_CORRECT) el.classList.add('correct-ans');
+    else if (v === lq3Val && v !== LQ3_CORRECT) el.classList.add('wrong-ans');
+  });
+  const d = document.getElementById('listen-score');
+  d.textContent = lq3Val === LQ3_CORRECT ? '✅ Correct! 1/1' : '❌ The correct answer is: a';
+  d.classList.add('show');
+  saveAll();
+}
+
+function resetListen() {
+  lq3Val=null; lq3Done=false;
+  ['a','b','c'].forEach(v => {
+    const el = document.getElementById('lq3-'+v);
+    el.classList.remove('selected','correct-ans','wrong-ans');
+    el.querySelector('input').checked=false;
+  });
+  document.getElementById('listen-score').classList.remove('show');
+  saveAll();
+}
+
+// ── CHECK REVIEW ──
+function checkReview() {
+  mcDone = true;
+  let score = 0;
+  MC.forEach((q,i) => {
+    const chosen = mcChosen[i];
+    const area = document.getElementById(`mc-btns-${i}`);
+    area.querySelectorAll('.choice-btn').forEach(btn => {
+      btn.classList.remove('chosen','correct-chosen','wrong-chosen','reveal-correct');
+      const w = btn.textContent;
+      if (w === q.correct) btn.classList.add('reveal-correct');
+      if (chosen && w === chosen && w !== q.correct) btn.classList.add('wrong-chosen');
+      if (chosen && w === chosen && w === q.correct)  { btn.classList.add('correct-chosen'); score++; }
+    });
+  });
+  const d = document.getElementById('review-score');
+  d.textContent = `Score: ${score} / ${MC.length}`;
+  d.classList.add('show');
+}
+
+function resetReview() {
+  mcChosen={}; mcDone=false;
+  document.getElementById('review-score').classList.remove('show');
+  buildMC();
+  saveAll();
+}
+
+// ── STORAGE ──
+function saveAll() {
+  const data = {
+    // vocab A2
+    a2q1: (document.getElementById('a2q1')||{}).value,
+    a2q2: (document.getElementById('a2q2')||{}).value,
+    a2q3: (document.getElementById('a2q3')||{}).value,
+    a2q4: (document.getElementById('a2q4')||{}).value,
+    a2q5: (document.getElementById('a2q5')||{}).value,
+    a2q6: (document.getElementById('a2q6')||{}).value,
+    a2q7: (document.getElementById('a2q7')||{}).value,
+    // vocab A3
+    a3q1: (document.getElementById('a3q1')||{}).value,
+    a3q2: (document.getElementById('a3q2')||{}).value,
+    a3q3: (document.getElementById('a3q3')||{}).value,
+    a3q4: (document.getElementById('a3q4')||{}).value,
+    // listen
+    pre : (document.getElementById('pre-listen')||{}).value,
+    lq1 : (document.getElementById('lq1')||{}).value,
+    lq2 : (document.getElementById('lq2')||{}).value,
+    lq3 : lq3Val, lq3Done: lq3Done,
+    lq4 : (document.getElementById('lq4')||{}).value,
+    lq5 : (document.getElementById('lq5')||{}).value,
+    // review
+    mc: mcChosen, mcDone: mcDone,
+    writing: (document.getElementById('writing-task')||{}).value,
+  };
+  localStorage.setItem('lawAnthony_v2', JSON.stringify(data));
+}
+
+function loadAll() {
+  let d;
+  try { d = JSON.parse(localStorage.getItem('lawAnthony_v2')||'{}'); } catch(e){ d={}; }
+
+  // vocab A2/A3
+  ['a2q1','a2q2','a2q3','a2q4','a2q5','a2q6','a2q7','a3q1','a3q2','a3q3','a3q4'].forEach(id=>{
+    const el=document.getElementById(id); if(el&&d[id]!=null) el.value=d[id];
+  });
+
+  // listen
+  ['pre','lq1','lq2','lq3','lq4','lq5'].forEach(key=>{
+    const id = key==='pre'?'pre-listen':key;
+    const el = document.getElementById(id);
+    if(el&&d[key]!=null&&key!=='lq3') el.value=d[key];
+  });
+  if(d.lq3){ lq3Val=d.lq3; const el=document.getElementById('lq3-'+d.lq3); if(el) el.classList.add('selected'); }
+  if(d.lq3Done){ lq3Done=true; checkListen(); }
+
+  // review
+  if(d.mc) mcChosen=d.mc;
+  buildMC();
+  if(d.mcDone){ checkReview(); }
+  const wt=document.getElementById('writing-task'); if(wt&&d.writing) wt.value=d.writing;
+}
+
+// attach live-save to all inputs
+document.addEventListener('input', saveAll);
+
+window.addEventListener('DOMContentLoaded', loadAll);
+</script>
+</body>
+</html>
