@@ -323,6 +323,20 @@
     <button class="reset-btn" onclick="resetReview()">↺ Reset</button>
     <div class="score-display" id="review-score"></div>
   </div>
+
+  <!-- ═══════════ FINAL SCORE ═══════════ -->
+  <div style="background:var(--jungle);border-radius:20px;padding:2rem 2rem 1.8rem;text-align:center;box-shadow:0 8px 32px rgba(26,58,42,.25);margin-top:2rem;">
+    <div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--sand);margin-bottom:.4rem;">🏆 Final Score</div>
+    <div style="color:var(--lime);font-size:.85rem;letter-spacing:.07em;text-transform:uppercase;font-weight:600;margin-bottom:1.5rem;">Calculate your total result</div>
+    <button class="check-btn" style="font-size:1.1rem;padding:.9rem 2.8rem;background:var(--gold);color:var(--jungle);box-shadow:0 4px 18px rgba(232,184,75,.4);" onclick="calcFinal()">
+      🎯 Calculate Final Score
+    </button>
+    <div id="final-result" style="display:none;margin-top:1.5rem;animation:fadeIn .4s ease;">
+      <div id="final-gauge" style="margin-bottom:1rem;"></div>
+      <div id="final-breakdown" style="background:rgba(255,255,255,0.08);border-radius:14px;padding:1.2rem 1.4rem;text-align:left;font-size:.9rem;color:var(--sand);line-height:2.2;"></div>
+      <div id="final-msg" style="margin-top:1.2rem;font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--gold);"></div>
+    </div>
+  </div>
 </div>
 
 </main>
@@ -466,6 +480,74 @@ function resetReview() {
   document.getElementById('review-score').classList.remove('show');
   buildMC();
   saveAll();
+}
+
+// ── FINAL SCORE ──
+function calcFinal() {
+  // Part A2: 7 points (auto-check)
+  let a2Score = 0;
+  Object.entries(A2_KEY).forEach(([id, ans]) => {
+    const val = (document.getElementById(id).value||'').trim().toLowerCase();
+    if (val === ans.toLowerCase() || val.includes(ans.toLowerCase())) a2Score++;
+  });
+  const a2Total = Object.keys(A2_KEY).length; // 7
+
+  // Part B Q3: 1 point (auto-check)
+  const lq3Score = (lq3Val === LQ3_CORRECT) ? 1 : 0;
+  const lq3Total = 1;
+
+  // Part C MC: 8 points (auto-check)
+  let mcScore = 0;
+  MC.forEach((q,i) => { if (mcChosen[i] === q.correct) mcScore++; });
+  const mcTotal = MC.length; // 8
+
+  const autoScore = a2Score + lq3Score + mcScore;
+  const autoTotal = a2Total + lq3Total + mcTotal; // 16
+
+  // Open questions: check if filled (A3: 4, Listen 1,2,4,5: 4) = 8 open answers
+  const openIds = ['a3q1','a3q2','a3q3','a3q4','lq1','lq2','lq4','lq5','pre-listen','writing-task'];
+  let filledOpen = 0;
+  openIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && (el.value||'').trim().length > 5) filledOpen++;
+  });
+  const openTotal = openIds.length;
+
+  // Percentage based on auto-checkable questions
+  const pct = Math.round((autoScore / autoTotal) * 100);
+
+  // Grade label
+  let grade, emoji;
+  if (pct >= 90)      { grade = 'Excellent!';   emoji = '🌟'; }
+  else if (pct >= 75) { grade = 'Very Good!';   emoji = '👏'; }
+  else if (pct >= 60) { grade = 'Good';          emoji = '✅'; }
+  else if (pct >= 45) { grade = 'Keep Trying';   emoji = '💪'; }
+  else                { grade = 'Needs Practice';emoji = '📚'; }
+
+  // Progress bar color
+  const barColor = pct >= 75 ? 'var(--correct)' : pct >= 45 ? 'var(--gold)' : 'var(--wrong)';
+
+  document.getElementById('final-gauge').innerHTML = `
+    <div style="font-size:3rem;font-family:'Playfair Display',serif;color:var(--gold);font-weight:900;">${pct}%</div>
+    <div style="background:rgba(255,255,255,.15);border-radius:30px;height:16px;width:100%;max-width:400px;margin:.6rem auto 0;overflow:hidden;">
+      <div style="height:100%;width:${pct}%;background:${barColor};border-radius:30px;transition:width 1s ease;"></div>
+    </div>
+  `;
+
+  document.getElementById('final-breakdown').innerHTML = `
+    <strong style="color:var(--gold);font-size:.95rem;">📊 Breakdown:</strong><br>
+    📗 Part A – Exercise 2 (Vocabulary):&nbsp;&nbsp;<strong>${a2Score} / ${a2Total}</strong><br>
+    🎧 Part B – Question 3 (Listening):&nbsp;&nbsp;<strong>${lq3Score} / ${lq3Total}</strong><br>
+    ✏️ Part C – Multiple Choice (Review):&nbsp;&nbsp;<strong>${mcScore} / ${mcTotal}</strong><br>
+    <hr style="border-color:rgba(255,255,255,.15);margin:.5rem 0;">
+    🔢 Auto-graded Total:&nbsp;&nbsp;<strong>${autoScore} / ${autoTotal}</strong><br>
+    ✍️ Open Questions Filled:&nbsp;&nbsp;<strong>${filledOpen} / ${openTotal}</strong>
+    <span style="font-size:.78rem;opacity:.7;"> (reviewed by teacher)</span>
+  `;
+
+  document.getElementById('final-msg').innerHTML = `${emoji} ${grade}`;
+  document.getElementById('final-result').style.display = 'block';
+  document.getElementById('final-result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 // ── STORAGE ──
